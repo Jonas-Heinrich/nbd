@@ -1868,7 +1868,7 @@ bool setupexport(CLIENT* client) {
 				cancreate = 0;
 			/* if expected_size is specified, and this is the first file, we can create the file */
 			mode_t mode = (client->server->flags & F_READONLY) ?
-			  O_RDONLY : (O_RDWR | (cancreate?O_CREAT:0));
+			  O_RDONLY : (O_RDWR | (cancreate?O_CREAT:0) | O_DIRECT);
 
 			if (temporary) {
 				tmpname=g_strdup_printf("%s.%d-XXXXXX", client->exportname, i);
@@ -1884,7 +1884,7 @@ bool setupexport(CLIENT* client) {
 				fi.fhandle = open(tmpname, mode, 0600);
 				if(fi.fhandle == -1 && mode == O_RDWR) {
 					/* Try again because maybe media was read-only */
-					fi.fhandle = open(tmpname, O_RDONLY);
+					fi.fhandle = open(tmpname, O_RDONLY | O_DIRECT);
 					if(fi.fhandle != -1) {
 						/* Opening the base file in copyonwrite mode is
 						 * okay */
